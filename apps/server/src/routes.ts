@@ -101,6 +101,22 @@ router.post('/account', async (req, res) => {
   } catch {}
 })
 
+// router.patch('/account', async (req, res) => {
+//   try {
+//     // const { firstName, lastName, username, birthday, email, password } = req.body
+//     const updatedUser = new User({
+//       firstName: req.body.firstName ? req.body.firstName : null,
+//       lastName: req.body.lastName,
+//       username: req.body.username,
+//       birthday: req.body.birthday,
+//       email: req.body.email,
+//       password: req.body.password,
+//     })
+//   } catch (error) {
+//     res.send({ error})
+//   }
+// })
+
 router.delete('/account', async (req, res) => {
   try {
     await User.deleteOne({
