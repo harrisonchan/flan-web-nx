@@ -5,6 +5,14 @@ import User from './models/User'
 
 const router = express.Router()
 
+router.get('/test', async (req, res) => {
+  try {
+    res.send({ message: 'Testing testing boop boop' })
+  } catch (error) {
+    res.send({ error })
+  }
+})
+
 router.get('/posts', async (req, res) => {
   const posts = await Post.find()
   res.send(posts)
@@ -120,11 +128,11 @@ router.post('/flan', async (req, res) => {
     const newFlan = new Flan({
       title: req.body.title,
       description: req.body.description,
-      content: req.body.content,
       illustration: req.body.illustration,
-      authorId: req.body.authorId,
-      tags: req.body.tags,
-      participantIds: req.body.participantIds,
+      author: req.body.author,
+      location: req.body.location,
+      activities: req.body.activities,
+      polls: req.body.polls,
     })
     await newFlan.save()
     res.send(newFlan)
