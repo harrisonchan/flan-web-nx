@@ -5,11 +5,13 @@
 
 import * as express from 'express'
 import * as mongoose from 'mongoose'
-import routes from './routes'
+import rootRouter from './routes'
+const cors = require('cors')
 
 const app = express()
+app.use(cors())
 app.use(express.json())
-app.use('/api', routes)
+app.use('/api', rootRouter)
 
 app.get('/test', (req, res) => {
   res.send({ message: 'Test works!' })
