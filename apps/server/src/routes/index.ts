@@ -1,9 +1,7 @@
 import * as express from 'express'
-import authRouter from './auth'
-import flanRouter from './flan'
+import authRouter from './authRouter'
 
 const rootRouter = express.Router()
 rootRouter.use('/', authRouter)
-rootRouter.use('/', flanRouter)
 
 export default rootRouter

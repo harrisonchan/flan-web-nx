@@ -27,7 +27,9 @@
   },
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     }
   },
   "defaultProject": "server",
@@ -46,5 +48,8 @@
         "linter": "eslint"
       }
     }
+  },
+  "babel": {
+    "plugins": []
   }
 }
