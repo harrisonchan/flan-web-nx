@@ -3,11 +3,11 @@ import { useFormik } from 'formik'
 import { Link } from 'react-router-dom'
 import Navbar from '../../components/Navbar'
 import ReviewBox from '../../components/ReviewBox'
+import { useQuery } from 'react-query'
 
 const REVIEWS = [
   {
-    avatarUrl:
-      'https://png.pngtree.com/png-clipart/20190924/original/pngtree-user-vector-avatar-png-image_4830521.jpg',
+    avatarUrl: 'https://png.pngtree.com/png-clipart/20190924/original/pngtree-user-vector-avatar-png-image_4830521.jpg',
     username: 'arxbombus',
     rating: '4/5',
     review: 'shitty app',
@@ -29,6 +29,19 @@ const HomePage = () => {
       console.log(values)
     },
   })
+  const loginFormik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    onSubmit: (values) => {
+      console.log(values)
+    },
+  })
+  const query = useQuery({
+    queryKey: ['user'],
+  })
+
   return (
     <>
       <Navbar />
@@ -43,48 +56,28 @@ const HomePage = () => {
           formik.submitForm()
         }}
       >
-        <input
-          type="text"
-          placeholder="First Name"
-          value={formik.values.firstName}
-          onChange={formik.handleChange('firstName')}
-        />
-        <input
-          type="text"
-          placeholder="Last Name"
-          value={formik.values.lastName}
-          onChange={formik.handleChange('lastName')}
-        />
-        <input
-          type="text"
-          placeholder="Username"
-          value={formik.values.username}
-          onChange={formik.handleChange('username')}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={formik.values.email}
-          onChange={formik.handleChange('email')}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={formik.values.password}
-          onChange={formik.handleChange('password')}
-        />
+        <input type="text" placeholder="First Name" value={formik.values.firstName} onChange={formik.handleChange('firstName')} />
+        <input type="text" placeholder="Last Name" value={formik.values.lastName} onChange={formik.handleChange('lastName')} />
+        <input type="text" placeholder="Username" value={formik.values.username} onChange={formik.handleChange('username')} />
+        <input type="email" placeholder="Email" value={formik.values.email} onChange={formik.handleChange('email')} />
+        <input type="password" placeholder="Password" value={formik.values.password} onChange={formik.handleChange('password')} />
         <input
           type="password"
           placeholder="Confirm Password"
           value={formik.values.confirmPassword}
           onChange={formik.handleChange('confirmPassword')}
         />
-        <input
-          placeholder="Birthday"
-          type="date"
-          value={formik.values.birthday}
-          onChange={formik.handleChange('birthday')}
-        />
+        <input placeholder="Birthday" type="date" value={formik.values.birthday} onChange={formik.handleChange('birthday')} />
+        <input type="submit" value="Submit" />
+      </form>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          loginFormik.submitForm()
+        }}
+      >
+        <input type="text" placeholder="email" onChange={loginFormik.handleChange('email')} />
+        <input type="password" placeholder="Password" onChange={loginFormik.handleChange('password')} />
         <input type="submit" value="Submit" />
       </form>
     </>

@@ -7,12 +7,12 @@ const refreshAccessToken = async (req, res) => {
   try {
     const { refreshAccessToken } = req.body
     jwt.verify(refreshAccessToken, process.env.ACCESS_TOKEN_SECRET, { algorithms: ['HS256'] }, (error, decoded) => {
+      console.log(decoded)
       if (error) {
         res.status(401).send({ message: 'Invalid refresh token' })
       }
       // const user = await User.checkRefreshAccessToken(decoded._id, refreshAccessToken)
       // const newRefreshToken = createAccessToken()
-      console.log(decoded)
     })
   } catch (error) {}
 }
