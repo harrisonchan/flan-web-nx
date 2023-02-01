@@ -7,16 +7,20 @@ import * as express from 'express'
 import * as mongoose from 'mongoose'
 import * as cookieParser from 'cookie-parser'
 import { expressJwtAuth } from './middleware'
-import rootRouter from './routes'
+import routes from './routes'
 const cors = require('cors')
 
 const app = express()
-app.use(cors())
+app.use(
+  cors({
+    credentials: true,
+    origin: true,
+  })
+)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-// app.use(cookieParser())
-app.use(expressJwtAuth)
-app.use('/api', rootRouter)
+app.use(cookieParser())
+// app.use(expressJwtAuth)
 
 app.get('/test', (req, res) => {
   res.send({ message: 'Test works!' })
@@ -24,9 +28,14 @@ app.get('/test', (req, res) => {
 
 const port = process.env.PORT || 3333
 
-mongoose.connect('mongodb://localhost:27017/flanTest', {}).then(() => {
-  const server = app.listen(port, () => {
-    console.log(`Listening at http://localhost:${port}`)
+const main = () => {
+  mongoose.connect('mongodb://localhost:27017/flanTest', {}).then(() => {
+    const server = app.listen(port, () => {
+      console.log(`Listening at http://localhost:${port}`)
+    })
+    server.on('error', console.error)
+    routes(app)
   })
-  server.on('error', console.error)
-})
+}
+
+main()

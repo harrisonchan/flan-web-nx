@@ -1,6 +1,6 @@
-import Axios from 'axios'
+import axios from 'axios'
 
-const userApi = Axios.create({
+const userApi = axios.create({
   baseURL: 'http://localhost:3333/api/user',
   headers: {
     'Content-Type': 'application/json',

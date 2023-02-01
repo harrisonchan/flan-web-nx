@@ -83,20 +83,21 @@ export const UserSchema = new Schema<IUser, UserModel>({
 
 const parseUserDocument = (userDocument: IUserDocument) => {
   const user = userDocument.toObject()
-  // delete sanitized.password
+  // delete user.refreshAccessTokens
+  // delete user.password
   return { user, userDocument }
 }
 
 UserSchema.statics.pushRefreshAccessToken = async function (userDocument: IUserDocument, newRefreshAccessToken) {
   userDocument.refreshAccessTokens.push(newRefreshAccessToken)
   await userDocument.save()
-  return '123'
+  return parseUserDocument(userDocument)
 }
 
 UserSchema.statics.checkRefreshAccessToken = async function (id, refreshAccessToken) {
   const user = await this.findById(id)
   if (user && user.refreshAccessTokens.includes(refreshAccessToken)) {
-    return user
+    return parseUserDocument(user)
   }
 }
 

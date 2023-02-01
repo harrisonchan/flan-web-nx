@@ -1,19 +1,24 @@
 import * as jwt from 'jsonwebtoken'
 import { IUser, User } from '../models'
-import { authControllersHandleErrors, createAccessToken } from '../utils'
+import { authControllersHandleErrors, createAccessToken, createAccessAndRefreshAccessTokens } from '../utils'
 import * as bcrypt from 'bcrypt'
 
-const refreshAccessToken = async (req, res) => {
+const refreshAuth = async (req, res) => {
+  // try {
+  //   const { refreshAccessToken } = req.body
+  //   jwt.verify(refreshAccessToken, process.env.ACCESS_TOKEN_SECRET, { algorithms: ['HS256'] }, (error, decoded) => {
+  //     // console.log(decoded)
+  //     if (error) {
+  //       res.status(401).send({ message: 'Invalid refresh token' })
+  //     }
+  //     // const user = await User.checkRefreshAccessToken(decoded._id, refreshAccessToken)
+  //     // const newRefreshToken = createAccessToken()
+  //   })
+  // } catch (error) {}
+
   try {
-    const { refreshAccessToken } = req.body
-    jwt.verify(refreshAccessToken, process.env.ACCESS_TOKEN_SECRET, { algorithms: ['HS256'] }, (error, decoded) => {
-      console.log(decoded)
-      if (error) {
-        res.status(401).send({ message: 'Invalid refresh token' })
-      }
-      // const user = await User.checkRefreshAccessToken(decoded._id, refreshAccessToken)
-      // const newRefreshToken = createAccessToken()
-    })
+    console.log(req.cookies)
+    console.log(req.headers)
   } catch (error) {}
 }
 
@@ -22,11 +27,10 @@ const registerUser = async (req, res) => {
     const newUser = await User.register(req.body)
     const { user } = newUser
 
-    const refreshAccessToken = createAccessToken({ payload: user, maxTokenAge: 'refreshAccessToken' })
+    const { accessToken, refreshAccessToken } = createAccessAndRefreshAccessTokens({ payload: user })
     await User.pushRefreshAccessToken(newUser.userDocument, refreshAccessToken)
-
-    const accessToken = createAccessToken({ payload: user, maxTokenAge: 'defaultAccessToken' })
-    res.cookie('accessToken', accessToken, { httpOnly: true })
+    res.cookie('access_token', accessToken, { httpOnly: true })
+    res.cookie('refresh-access-token', refreshAccessToken, { httpOnly: true })
 
     res.status(201).send({ user, message: 'Register Success' })
   } catch (error) {
@@ -42,18 +46,13 @@ const loginUser = async (req, res) => {
     const { user, userDocument } = await User.login(email, password)
     if (user) {
       // Create new tokens
-      const accessToken = createAccessToken({ payload: user, maxTokenAge: 'defaultAccessToken' })
-      const refreshAccessToken = createAccessToken({ payload: user, maxTokenAge: 'refreshAccessToken' })
-      const updatedUser = await User.pushRefreshAccessToken(userDocument, refreshAccessToken)
-      // console.log(accessToken)
-      // console.log(refreshAccessToken)
-      // console.log(updatedUser.user)
-      console.log(await User.pushRefreshAccessToken(userDocument, refreshAccessToken))
+      const { accessToken, refreshAccessToken } = createAccessAndRefreshAccessTokens({ payload: user })
+      const { user: updatedUser } = await User.pushRefreshAccessToken(userDocument, refreshAccessToken)
       if (updatedUser) {
-        res.cookie('accessToken', accessToken, { httpOnly: true })
-        res.cookie('refreshAccessToken', refreshAccessToken, { httpOnly: true })
-        res.status(200).send({ user, message: 'Login Success' })
-        console.log('Login Success')
+        res.cookie('access-token', accessToken, { httpOnly: true })
+        res.cookie('refresh-access-token', refreshAccessToken, { httpOnly: true })
+        res.status(200).send({ user: updatedUser, message: 'Login Success', accessTokens: { accessToken, refreshAccessToken } })
+        console.log(`Login Success: ${updatedUser}`)
       } else {
         res.status(400).send({ message: 'Error getting 123access token when logging in' })
       }
@@ -90,4 +89,4 @@ const deleteUser = async (req, res) => {
   }
 }
 
-export { refreshAccessToken, registerUser, loginUser, updateUser, deleteUser }
+export { refreshAuth, registerUser, loginUser, updateUser, deleteUser }

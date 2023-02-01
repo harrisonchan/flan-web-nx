@@ -1,87 +1,59 @@
-import React, { useState } from 'react'
+import axios from 'axios'
 import { useFormik } from 'formik'
-import { Link } from 'react-router-dom'
-import Navbar from '../../components/Navbar'
-import ReviewBox from '../../components/ReviewBox'
-import { useQuery } from 'react-query'
-
-const REVIEWS = [
-  {
-    avatarUrl: 'https://png.pngtree.com/png-clipart/20190924/original/pngtree-user-vector-avatar-png-image_4830521.jpg',
-    username: 'arxbombus',
-    rating: '4/5',
-    review: 'shitty app',
-  },
-]
+import React from 'react'
+import { useMutation, useQuery } from 'react-query'
+import { userApi } from '../../api'
 
 const HomePage = () => {
-  const formik = useFormik({
-    initialValues: {
-      firstName: '',
-      lastName: '',
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      birthday: '',
-    },
-    onSubmit: (values) => {
-      console.log(values)
-    },
-  })
   const loginFormik = useFormik({
     initialValues: {
       email: '',
       password: '',
     },
     onSubmit: (values) => {
-      console.log(values)
+      loginMutation.mutate(values)
     },
   })
-  const query = useQuery({
-    queryKey: ['user'],
+  const loginMutation = useMutation((values: { email: string; password: string }) => userApi.post('/login', values), {
+    onSuccess: (data) => {
+      console.log(data)
+      console.log()
+      const { firstName, lastName, email, username } = data.data.user
+      alert(`Welcome ${firstName} ${lastName} (${email})! Access token: ${data.data.accessTokens.accessToken}`)
+    },
   })
 
   return (
-    <>
-      <Navbar />
-      <h1>Flan</h1>
-      <h3>The #1 app for planning events with friends</h3>
-      <p>Join 1 million+ friends!</p>
-      <ReviewBox reviews={REVIEWS} />
-      {/* Account register form */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          formik.submitForm()
-        }}
-      >
-        <input type="text" placeholder="First Name" value={formik.values.firstName} onChange={formik.handleChange('firstName')} />
-        <input type="text" placeholder="Last Name" value={formik.values.lastName} onChange={formik.handleChange('lastName')} />
-        <input type="text" placeholder="Username" value={formik.values.username} onChange={formik.handleChange('username')} />
-        <input type="email" placeholder="Email" value={formik.values.email} onChange={formik.handleChange('email')} />
-        <input type="password" placeholder="Password" value={formik.values.password} onChange={formik.handleChange('password')} />
+    <div>
+      <h3>Login</h3>
+      <form>
+        <input type="text" name="email" placeholder="email" onChange={loginFormik.handleChange} value={loginFormik.values.email} />
         <input
           type="password"
-          placeholder="Confirm Password"
-          value={formik.values.confirmPassword}
-          onChange={formik.handleChange('confirmPassword')}
+          name="password"
+          placeholder="password"
+          onChange={loginFormik.handleChange}
+          value={loginFormik.values.password}
         />
-        <input placeholder="Birthday" type="date" value={formik.values.birthday} onChange={formik.handleChange('birthday')} />
-        <input type="submit" value="Submit" />
+        <input
+          type="submit"
+          value="Login"
+          onClick={(e) => {
+            e.preventDefault()
+            loginFormik.handleSubmit()
+          }}
+        />
       </form>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          loginFormik.submitForm()
+      <button
+        onClick={() => {
+          axios.get('http://localhost:3333/api/user/auth-test').then((res) => {
+            console.log(res)
+          })
         }}
       >
-        <input type="text" placeholder="email" onChange={loginFormik.handleChange('email')} />
-        <input type="password" placeholder="Password" onChange={loginFormik.handleChange('password')} />
-        <input type="submit" value="Submit" />
-      </form>
-    </>
+        Test
+      </button>
+    </div>
   )
 }
-
 export default HomePage
